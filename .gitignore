@@ -1,5 +1,7 @@
 .env
 
+admin/uploads/
+
 haters/
 
 *.sketch
