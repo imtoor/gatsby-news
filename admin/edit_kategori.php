@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Berita</title>
+    <title>Edit Kategori</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -25,10 +25,10 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
+          <a class="nav-link" href="index.php">Dashboard</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="kategori.php">Kategori</a>
+          <a class="nav-link active" aria-current="page" href="#">Kategori</a>
         </li>
 
       </ul>
@@ -42,54 +42,31 @@
     <div class="row">
         <div class="col-md-12">
         <button type="button" onclick="batal()" class="btn btn-danger"><i class="fa fa-arrow-left"></i></button>
-        <h2 class="text-center">Tambah Berita</h2>
+        <h2 class="text-center">Edit Kategori</h2>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12">
-<?php
- if(isset($_GET['msg'])) { ?>
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-  <?= "<h5>".$_GET['msg']."</h5>" ?>
-</div>
-<?php } ?>
 
-<form class="row g-3" action="add_berita.php" method="post" enctype="multipart/form-data">
+<form class="row g-3" action="update_kategori.php" method="post">
+<?php 
+require 'conn.php';
+$sql = "SELECT id, kategori FROM kategori WHERE id = '".$_GET['id']."'";
+
+if ($result = $mysqli->query($sql)) {
+    $row = $result->fetch_assoc();
+}
+
+?>
+<input type="hidden" name="id" value="<?= $row['id'] ?>">
   <div class="col-md-12">
-    <label for="title" class="form-label">Judul</label>
-    <input type="text" class="form-control" id="title" name="title" required>
+    <label for="kategori" class="form-label">Kategori</label>
+    <input type="text" class="form-control" id="kategori" name="kategori" value="<?= $row['kategori'] ?>" required>
   </div>
-  <div class="col-md-12">
-    <label for="kategori_id" class="form-label">Kategori</label>
-    <?php
-     require 'conn.php';
-      $sql_kategori = "SELECT id, kategori FROM kategori";
-      if ($res_kategori = $mysqli->query($sql_kategori)) {
-        $get_kategori = $res_kategori->fetch_all(MYSQLI_ASSOC);
-      } else {
-        die($mysqli->error);
-      }
-    ?>
-    <select name="kategori_id" id="kategori_id" class="form-control" required>
-        <option selected>-- Pilih --</option>
-        <?php
-          foreach($get_kategori as $value) { ?>
-            <option value="<?= $value['id'] ?>"><?= $value['kategori'] ?></option>
-        <?php } ?>
-    </select>
-  </div>
+
   <div class="col-12">
-    <label for="image" class="form-label">Gambar</label>
-    <input type="file" class="form-control" id="image" name="image" required>
-  </div>
-  <div class="col-12">
-    <label for="content" class="form-label">Konten</label>
-    <textarea name="content" id="content" class="form-control" placeholder="Masukkan konten..." cols="30" rows="10" required></textarea>
-  </div>
-  <div class="col-12">
-    <input type="hidden" name="action" value="submit">
-    <button type="submit" class="btn btn-success">Simpan</button>
+    <button type="submit" class="btn btn-primary">Update</button>
     <button type="button" onclick="batal()" class="btn btn-danger">Batal</button>
   </div>
 </form>
@@ -109,7 +86,7 @@
     });
 
     function batal() {
-        document.location.href = 'index.php';
+        document.location.href = 'kategori.php';
     }
 </script>
 </body>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Berita</title>
+    <title>Edit Berita </title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -42,23 +42,58 @@
     <div class="row">
         <div class="col-md-12">
         <button type="button" onclick="batal()" class="btn btn-danger"><i class="fa fa-arrow-left"></i></button>
-        <h2 class="text-center">Tambah Berita</h2>
+        <h2 class="text-center">Edit Berita</h2>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12">
 <?php
- if(isset($_GET['msg'])) { ?>
+
+if(!isset($_GET['slug'])) {
+    header("Location: index.php?msg=Berita tidak di temukan!");
+}
+
+if(isset($_GET['msg'])) { ?>
 <div class="alert alert-danger alert-dismissible fade show" role="alert">
   <?= "<h5>".$_GET['msg']."</h5>" ?>
 </div>
 <?php } ?>
 
-<form class="row g-3" action="add_berita.php" method="post" enctype="multipart/form-data">
+<form class="row g-3" action="update_berita.php" method="post" enctype="multipart/form-data">
+<?php 
+require 'conn.php';
+$sql = "SELECT 
+            kategori.id ,
+            kategori.kategori as kategori, 
+            news.id, 
+            news.image, 
+            news.title, 
+            news.content, 
+            news.slug, 
+            news.created_at 
+        FROM news, kategori
+        WHERE 
+            news.slug = '".$_GET['slug']."' && 
+            news.kategori_id = kategori.id";
+
+if(!$mysqli->query($sql)) {
+    header("Location: index.php?msg=Terjadi kesalahan!, error ".$mysqli->error);
+}
+
+$result = $mysqli->query($sql);
+$row = $result->fetch_assoc();
+
+if($row == null) {
+    header("Location: index.php?msg=Berita tidak di temukan!");
+}
+
+?>
+<input type="hidden" name="id" value="<?= $row['id'] ?>">
+
   <div class="col-md-12">
     <label for="title" class="form-label">Judul</label>
-    <input type="text" class="form-control" id="title" name="title" required>
+    <input type="text" class="form-control" id="title" name="title" value="<?= $row['title'] ?>" required>
   </div>
   <div class="col-md-12">
     <label for="kategori_id" class="form-label">Kategori</label>
@@ -75,17 +110,20 @@
         <option selected>-- Pilih --</option>
         <?php
           foreach($get_kategori as $value) { ?>
-            <option value="<?= $value['id'] ?>"><?= $value['kategori'] ?></option>
+            <option value="<?= $value['id'] ?>" <?= ($value['kategori'] == $row['kategori'] ? 'selected':'') ?>><?= $value['kategori'] ?></option>
         <?php } ?>
     </select>
   </div>
   <div class="col-12">
     <label for="image" class="form-label">Gambar</label>
     <input type="file" class="form-control" id="image" name="image" required>
+    <center>
+        <img class="img" src="<?= "uploads/".basename($row['image']) ?>" alt="<?= $row['image'] ?>" width="100px">
+    </center>
   </div>
   <div class="col-12">
     <label for="content" class="form-label">Konten</label>
-    <textarea name="content" id="content" class="form-control" placeholder="Masukkan konten..." cols="30" rows="10" required></textarea>
+    <textarea name="content" id="content" class="form-control" placeholder="Masukkan konten..." cols="30" rows="10" required><?= $row['content'] ?></textarea>
   </div>
   <div class="col-12">
     <input type="hidden" name="action" value="submit">
@@ -106,6 +144,11 @@
 <script>
     $(document).ready(function() {
         $("input[name=title]").focus();
+    });
+
+    $("input[type=file]").change(function() {
+        $("img").attr('src','');
+        $("img").css('display','none');
     });
 
     function batal() {
