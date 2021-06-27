@@ -1,19 +1,28 @@
 <?php
+    header('Access-Control-Allow-Origin: *');
     require '../conn.php';
     require '../helpers/http.php';
 
     if (!isset($_GET['slug'])) {
         $response = ['status' => true, 'data' => []];
         Http::toJson($response);
-    } else {
+    }
 
-        $slug = $_GET['slug'];
-        if ($slug == "all") {
-            $sql = "SELECT title, image, title, content, slug, created_at FROM news";
-        } else {
-            $sql = "SELECT title, image, title, content, slug, created_at FROM news WHERE slug = '".$slug."'";
+    $slug = $_GET['slug'];
+    if ($slug == "all") { // get all
+
+        $sql = "SELECT kategori_id, title, image, title, content, slug, created_at FROM news";
+        if (isset($_GET['limit']) && ($_GET['limit'] != '' && $_GET['limit'] != '0')) {
+            $sql .= " LIMIT ".$_GET['limit'];
         }
-        
+
+        if (isset($_GET['offset']) && ($_GET['offset'] != '' && $_GET['offset'] != '0')) {
+            $str = str_replace(" LIMIT ".$_GET['limit']," LIMIT ".$_GET['offset'].", ".$_GET['limit'],$sql);
+            $sql = $str;
+        }
+
+    } else {
+        $sql = "SELECT kategori_id, title, image, title, content, slug, created_at FROM news WHERE slug = '".$slug."'";
     }
 
     if (!$mysqli->query($sql)) {
