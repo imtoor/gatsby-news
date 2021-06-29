@@ -2,15 +2,32 @@ import React, { useEffect, useState } from 'react';
 import { Link, navigate } from 'gatsby';
 import Layout from '../components/Layout';
 
-import imgNews from '../assets/images/news-825x525.jpg';
-import imgNews1 from '../assets/images/news-350x223-1.jpg';
-import imgNews2 from '../assets/images/news-350x223-2.jpg';
-import imgNews3 from '../assets/images/news-350x223-3.jpg';
-import imgNews4 from '../assets/images/news-350x223-4.jpg';
+const loadImage = function (variable) {
+  const image = new Image();
+  image.src = `http://localhost/gatsby-news/admin/uploads/${variable}`;
+  // eslint-disable-next-line eqeqeq
+  if (image.width == 0) {
+    return `http://localhost/gatsby-news/admin/uploads/placeholder.png`;
+  }
+  return `http://localhost/gatsby-news/admin/uploads/${variable}`;
+};
+
+const RelatedNewsItem = (news) => (
+  <div className="col-md-4">
+    <div className="sn-img">
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+      <img src={loadImage(news.news.image)} alt={news.news.image} />
+      <div className="sn-title">
+        <Link to={`/news/${news.news.slug}`}>{news.news.title}</Link>
+      </div>
+    </div>
+  </div>
+);
 
 // eslint-disable-next-line no-empty-pattern
 export default function NewsPage() {
   const [news, setNews] = useState({});
+  const [relatedNews, setRelatedNews] = useState([]);
 
   useEffect(() => {
     const pathArray = window.location.pathname.split('/');
@@ -24,7 +41,7 @@ export default function NewsPage() {
             setNews({
               title: response.data[0].title,
               content: response.data[0].content,
-              image: `http://localhost/gatsby-news/admin/uploads/${response.data[0].image}`,
+              image: loadImage(response.data[0].image),
             });
             console.log(news);
           } else {
@@ -38,6 +55,24 @@ export default function NewsPage() {
       navigate('/', { replace: true });
     }
   }, '');
+
+  useEffect(() => {
+    fetch(
+      `http://localhost/gatsby-news/admin/api/news.php?slug=all&limit=6`
+    ).then(async (res) => {
+      const response = await res.json();
+      if (response !== undefined) {
+        if (response.status && response.data.length > 0) {
+          // eslint-disable-next-line array-callback-return
+          response.data.map((item) => {
+            setRelatedNews((prevState) => [...prevState, item]);
+          });
+        }
+      } else {
+        setRelatedNews((prevState) => [...prevState, []]);
+      }
+    });
+  }, []);
 
   return (
     <Layout>
@@ -69,38 +104,9 @@ export default function NewsPage() {
               <div className="sn-related">
                 <h2>Related News</h2>
                 <div className="row sn-slider">
-                  <div className="col-md-4">
-                    <div className="sn-img">
-                      <img src={imgNews1} />
-                      <div className="sn-title">
-                        <a href="">Interdum et fames ac ante</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <div className="sn-img">
-                      <img src={imgNews2} />
-                      <div className="sn-title">
-                        <a href="">Interdum et fames ac ante</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <div className="sn-img">
-                      <img src={imgNews3} />
-                      <div className="sn-title">
-                        <a href="">Interdum et fames ac ante</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <div className="sn-img">
-                      <img src={imgNews4} />
-                      <div className="sn-title">
-                        <a href="">Interdum et fames ac ante</a>
-                      </div>
-                    </div>
-                  </div>
+                  {relatedNews.map((item) => (
+                    <RelatedNewsItem news={item} />
+                  ))}
                 </div>
               </div>
             </div>

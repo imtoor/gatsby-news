@@ -35,11 +35,11 @@ export default function Layout({ children }) {
                 <div className="tb-contact">
                   <p>
                     <i className="fas fa-envelope" />
-                    info@mail.com
+                    ardiansyahyusuf1096@gmail.com
                   </p>
                   <p>
                     <i className="fas fa-phone-alt" />
-                    +012 345 6789
+                    0823-4704-3355
                   </p>
                 </div>
               </div>

@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import {Link} from 'gatsby';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'gatsby';
+import groupBy from 'lodash/groupBy';
 import Layout from '../components/Layout';
 
 import imgNews1 from '../assets/images/news-450x350-1.jpg';
@@ -7,6 +8,16 @@ import imgNews2 from '../assets/images/news-450x350-2.jpg';
 import imgNews3 from '../assets/images/news-350x223-1.jpg';
 import imgNews4 from '../assets/images/news-350x223-2.jpg';
 import imgNews5 from '../assets/images/news-350x223-3.jpg';
+
+const loadImage = function (variable) {
+  const image = new Image();
+  image.src = `http://localhost/gatsby-news/admin/uploads/${variable}`;
+  // eslint-disable-next-line eqeqeq
+  if (image.width == 0) {
+    return `http://localhost/gatsby-news/admin/uploads/placeholder.png`;
+  }
+  return `http://localhost/gatsby-news/admin/uploads/${variable}`;
+};
 
 const TopNewsTnLeft = ({ img, slug, linkText }) => (
   <div className="col-md-6">
@@ -31,45 +42,68 @@ const TopNewsTnRight = ({ img, slug, linkText }) => (
   </div>
 );
 
-const NewsMap = ({ kategori }) => (
+const NewsMap = ({ kategori, item }) => (
   <>
     <div className="col-md-6">
       <h2>{kategori}</h2>
       <div className="row cn-slider">
-        <div className="col-md-6">
-          <div className="cn-img">
-            <img src={imgNews1} alt={imgNews1} />
-            <div className="cn-title">
-              <a href="">Lorem ipsum dolor sit</a>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-6">
-          <div className="cn-img">
-            {/* eslint-disable-next-line jsx-a11y/alt-text */}
-            <img src={imgNews2} />
-            <div className="cn-title">
-              <a href="">Lorem ipsum dolor sit</a>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-6">
-          <div className="cn-img">
-            <img src={imgNews3} />
-            <div className="cn-title">
-              <a href="">Lorem ipsum dolor sit</a>
-            </div>
-          </div>
-        </div>
+        {item.map(
+          (news, index) =>
+            index < 3 && (
+              <div className="col-md-6">
+                <div className="cn-img">
+                  {/* eslint-disable-next-line no-undef */}
+                  <img src={loadImage(news.image)} alt={news.image} />
+                  <div className="cn-title">
+                    <Link to={`news/${news.slug}`}>{news.title}</Link>
+                  </div>
+                </div>
+              </div>
+            )
+        )}
       </div>
     </div>
   </>
 );
 
+const MainNews = (item) => (
+  <div className="col-md-4">
+    <div className="mn-img">
+      <img src={loadImage(item.item.image)} alt={item.item.image} />
+      <div className="mn-title">
+        <Link to={`news/${item.item.slug}`}>{item.item.title}</Link>
+      </div>
+    </div>
+  </div>
+);
+
+const Featured = (item) => (
+  <div className="tn-news">
+    <div className="tn-img">
+      <img src={loadImage(item.item.image)} alt={item.item.image} />
+    </div>
+    <div className="tn-title">
+      <Link to={`/news/${item.item.slug}`}>{item.item.title}</Link>
+    </div>
+  </div>
+);
+
+const PopularNews = (item) => <></>;
+
+const LatestNews = (item) => <></>;
+
+const MostViewed = (item) => <></>;
+
+const MostRead = (item) => <></>;
+
+const MostRecent = (item) => <></>;
+
 export default function HomePage() {
   const [listOfKategori, setListOfKategori] = useState([]);
   const [topNewsLeft, setTopNewsLeft] = useState([]);
   const [topNewsRight, setTopNewsRight] = useState([]);
+  const [mainNews, setMainNews] = useState([]);
+  const [featuredItem, setFeaturedItem] = useState([]);
 
   useEffect(() => {
     document.getElementById('linkAbout').classList.remove('active');
@@ -100,28 +134,47 @@ export default function HomePage() {
 
   useEffect(() => {
     // Kategori
-    fetch(`http://localhost/gatsby-news/admin/api/kategori.php?name=all`).then(
+    fetch(`http://localhost/gatsby-news/admin/api/news.php?slug=all`).then(
       async (res) => {
         const json = await res.json();
         const { data } = json;
+        const groupNews = groupBy(data, (n) => n.kategori);
+        const toArray = Object.entries(groupNews);
         // eslint-disable-next-line array-callback-return
-        data.map((value) => {
-          const { kategori } = value;
-          setListOfKategori((prevState) => [...prevState, kategori]);
+        toArray.map((item) => {
+          setListOfKategori((prevState) => [...prevState, item]);
         });
       }
     );
   }, []);
 
-  const loadImage = function (variable) {
-    const image = new Image();
-    image.src = `http://localhost/gatsby-news/admin/uploads/${variable}`;
-    // eslint-disable-next-line eqeqeq
-    if (image.width == 0) {
-      return `http://localhost/gatsby-news/admin/uploads/placeholder.png`;
-    }
-    return `http://localhost/gatsby-news/admin/uploads/${variable}`;
-  };
+  useEffect(() => {
+    fetch(
+      `http://localhost/gatsby-news/admin/api/news.php?slug=all&limit=9`
+    ).then(async (res) => {
+      const json = await res.json();
+      const { data } = json;
+      // eslint-disable-next-line array-callback-return
+      data.map((item) => {
+        setMainNews((prevState) => [...prevState, item]);
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    fetch(`http://localhost/gatsby-news/admin/api/news.php?slug=all`).then(
+      async (res) => {
+        const response = await res.json();
+        // eslint-disable-next-line array-callback-return
+        response.data.map((item) => {
+          // eslint-disable-next-line eqeqeq
+          if (item.featured == 1) {
+            setFeaturedItem((prevState) => [...prevState, item]);
+          }
+        });
+      }
+    );
+  }, []);
 
   return (
     <Layout>
@@ -161,7 +214,7 @@ export default function HomePage() {
         <div className="container">
           <div className="row">
             {listOfKategori.map((item) => (
-              <NewsMap kategori={item} />
+              <NewsMap kategori={item[0]} item={item[1]} />
             ))}
           </div>
         </div>
@@ -197,30 +250,9 @@ export default function HomePage() {
 
               <div className="tab-content">
                 <div id="featured" className="container tab-pane active">
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews1} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews2} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews3} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
+                  {featuredItem.map((item) => (
+                    <Featured item={item} />
+                  ))}
                 </div>
                 <div id="popular" className="container tab-pane fade">
                   <div className="tn-news">
@@ -392,118 +424,9 @@ export default function HomePage() {
           <div className="row">
             <div className="col-lg-9">
               <div className="row">
-                <div className="col-md-4">
-                  <div className="mn-img">
-                    <img src={imgNews1} />
-                    <div className="mn-title">
-                      <a href="">Lorem ipsum dolor sit</a>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="mn-img">
-                    <img src={imgNews2} />
-                    <div className="mn-title">
-                      <a href="">Lorem ipsum dolor sit</a>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="mn-img">
-                    <img src={imgNews3} />
-                    <div className="mn-title">
-                      <a href="">Lorem ipsum dolor sit</a>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="mn-img">
-                    <img src={imgNews4} />
-                    <div className="mn-title">
-                      <a href="">Lorem ipsum dolor sit</a>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="mn-img">
-                    <img src={imgNews5} />
-                    <div className="mn-title">
-                      <a href="">Lorem ipsum dolor sit</a>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="mn-img">
-                    <img src={imgNews1} />
-                    <div className="mn-title">
-                      <a href="">Lorem ipsum dolor sit</a>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="mn-img">
-                    <img src={imgNews2} />
-                    <div className="mn-title">
-                      <a href="">Lorem ipsum dolor sit</a>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="mn-img">
-                    <img src={imgNews3} />
-                    <div className="mn-title">
-                      <a href="">Lorem ipsum dolor sit</a>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="mn-img">
-                    <img src={imgNews4} />
-                    <div className="mn-title">
-                      <a href="">Lorem ipsum dolor sit</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-lg-3">
-              <div className="mn-list">
-                <h2>Read More</h2>
-                <ul>
-                  <li>
-                    <a href="">Lorem ipsum dolor sit amet</a>
-                  </li>
-                  <li>
-                    <a href="">Pellentesque tincidunt enim libero</a>
-                  </li>
-                  <li>
-                    <a href="">Morbi id finibus diam vel pretium enim</a>
-                  </li>
-                  <li>
-                    <a href="">Duis semper sapien in eros euismod sodales</a>
-                  </li>
-                  <li>
-                    <a href="">Vestibulum cursus lorem nibh</a>
-                  </li>
-                  <li>
-                    <a href="">
-                      Morbi ullamcorper vulputate metus non eleifend
-                    </a>
-                  </li>
-                  <li>
-                    <a href="">Etiam vitae elit felis sit amet</a>
-                  </li>
-                  <li>
-                    <a href="">Nullam congue massa vitae quam</a>
-                  </li>
-                  <li>
-                    <a href="">Proin sed ante rutrum</a>
-                  </li>
-                  <li>
-                    <a href="">Curabitur vel lectus</a>
-                  </li>
-                </ul>
+                {mainNews.map((item) => (
+                  <MainNews item={item} />
+                ))}
               </div>
             </div>
           </div>

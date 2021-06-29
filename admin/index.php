@@ -89,6 +89,8 @@
                 <th>Kategori</th>
                 <th>Gambar</th>
                 <th>Slug</th>
+                <th>Viewer</th>
+                <th>Featured</th>
                 <th>Tanggal di buat</th>
                 <th>#</th>
             </tr>
@@ -96,7 +98,7 @@
         <tbody>
         <?php
           require 'conn.php';
-          $sql = "SELECT kategori.id ,kategori.kategori as kategori, news.id, news.image, news.title, news.content, news.slug, news.created_at FROM news, kategori WHERE news.kategori_id = kategori.id";
+          $sql = "SELECT kategori.id ,kategori.kategori as kategori, news.id, news.image, news.title, news.content, news.slug, news.viewer, news.featured, news.created_at FROM news, kategori WHERE news.kategori_id = kategori.id";
           if ($query = $mysqli->query($sql)) {
 
             $result = $query->fetch_all(MYSQLI_ASSOC);
@@ -111,6 +113,8 @@
                     <td><?= $value['kategori'] ?></td>
                     <td><img src="<?= basename()."uploads/".$value['image'] ?>" alt="<?= $value['image'] ?>" width="50px"></td>
                     <td><?= $value['slug'] ?></td>
+                    <td><?= $value['viewer'] ?></td>
+                    <td><?= ($value['featured'] == 1 ? "<i class='fa fa-check' aria-hidden='true'></i>":"<i class='fa fa-remove' aria-hidden='true'></i>")  ?></td>
                     <td>
                       <?php
                         $date = explode(" ",$value['created_at']);
@@ -147,6 +151,8 @@
                 <th>Kategori</th>
                 <th>Gambar</th>
                 <th>Slug</th>
+                <th>Viewer</th>
+                <th>Featured</th>
                 <th>Tanggal di buat</th>
                 <th>#</th>
             </tr>

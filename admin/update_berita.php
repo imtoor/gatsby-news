@@ -7,48 +7,61 @@ require 'helpers/http.php';
 
 if(isset($_POST['action']) && $_POST['action'] == 'submit') {
 
-    $image      = $_FILES['image'];
-    $image['name']  =   uniqid()."-".$image['name'];
-    $uploadPath = "uploads/";
-    $targetFile = $uploadPath.basename($image['name']);
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
 
-    $isImage = isImage($image);
-    if(!$isImage['status']) {
-        Http::redirect('Location: edit_berita.php?msg='.$isImage['message']);
+        $image          = $_FILES['image'];
+        $image['name']  =   uniqid()."-".$image['name'];
+        $uploadPath     = "uploads/";
+        $targetFile     = $uploadPath.basename($image['name']);
+
+        $isImage = isImage($image);
+        if(!$isImage['status']) {
+            Http::redirect('Location: edit_berita.php?msg='.$isImage['message']);
+        }
+
+        $isFileExist = isFileExist($targetFile);
+        if ($isFileExist['status']) {
+            Http::redirect('Location: edit_berita.php?msg='.$isFileExist['message']);
+        }
+
+        $is_file_size_more_than_five_mb = checkFileSize($image, 500000);
+        if($is_file_size_more_than_five_mb['status']) {
+            Http::redirect('Location: edit_berita.php?msg='.$is_file_size_more_than_five_mb['message']);
+        }
+
+        $formats = ['jpg','png','jpeg','gif'];
+        $allowFileFormats = allowFileFormats($targetFile, $formats);
+        if($allowFileFormats['status']) {
+            Http::redirect('Location: edit_berita.php?msg='.$allowFileFormats['message']);
+        }
+
+        if (!move_uploaded_file($image['tmp_name'],$targetFile)) {
+            Http::redirect('Location: edit_berita.php?msg=Terjadi error saat mengupload file anda!');
+        }
+
     }
 
-    $isFileExist = isFileExist($targetFile);
-    if ($isFileExist['status']) {
-        Http::redirect('Location: edit_berita.php?msg='.$isFileExist['message']);
-    }
-    
-
-    $is_file_size_more_than_five_mb = checkFileSize($image, 500000);
-    if($is_file_size_more_than_five_mb['status']) {
-        Http::redirect('Location: edit_berita.php?msg='.$is_file_size_more_than_five_mb['message']);
-    }
-
-    $formats = ['jpg','png','jpeg','gif'];
-    $allowFileFormats = allowFileFormats($targetFile, $formats);
-    if($allowFileFormats['status']) {
-        Http::redirect('Location: edit_berita.php?msg='.$allowFileFormats['message']);
-    }
-
-    if (!move_uploaded_file($image['tmp_name'],$targetFile)) {
-        Http::redirect('Location: edit_berita.php?msg=Terjadi error saat mengupload file anda!');
-    } 
-    
     $id            =   $_POST['id'];
     $kategori_id   =   $_POST['kategori_id'];
     $title         =   $_POST['title'];
     $content       =   $_POST['content'];
     $slug          =   toSlug($title);
+    if (isset($_POST['featured'])) {
+        $featured      =   ", featured = '".$_POST['featured']."'";
+    } else {
+        $featured      =   ", featured = '0'";
+    }
 
-    $sql = "UPDATE news SET kategori_id = '".$kategori_id."', image = '".$image['name']."', title = '".$title."', content = '".$content."', slug = '".$slug."' WHERE id = '".$id."'";
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+        $sql = "UPDATE news SET kategori_id = '".$kategori_id."', image = '".$image['name']."', title = '".$title."', content = '".$content."', slug = '".$slug."'".$featured." WHERE id = '".$id."'";
+    } else {
+        $sql = "UPDATE news SET kategori_id = '".$kategori_id."', title = '".$title."', content = '".$content."', slug = '".$slug."'".$featured." WHERE id = '".$id."'";
+    }
 
     if($result = $mysqli->query($sql)) {
         header('Location: index.php');
     } else {
+        die('fail');
         unlink($targetFile);
         header('Location: edit_berita.php?msg=Gagal mengupdate data, error: '.$mysqli->error);
     }

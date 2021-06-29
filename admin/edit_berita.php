@@ -71,7 +71,8 @@ $sql = "SELECT
             news.title, 
             news.content, 
             news.slug, 
-            news.created_at 
+            news.featured,
+            news.created_at
         FROM news, kategori
         WHERE 
             news.slug = '".$_GET['slug']."' && 
@@ -116,7 +117,7 @@ if($row == null) {
   </div>
   <div class="col-12">
     <label for="image" class="form-label">Gambar</label>
-    <input type="file" class="form-control" id="image" name="image" required>
+    <input type="file" class="form-control" id="image" name="image">
     <center>
         <img class="img" src="<?= "uploads/".basename($row['image']) ?>" alt="<?= $row['image'] ?>" width="100px">
     </center>
@@ -125,8 +126,15 @@ if($row == null) {
     <label for="content" class="form-label">Konten</label>
     <textarea name="content" id="content" class="form-control" placeholder="Masukkan konten..." cols="30" rows="10" required><?= $row['content'] ?></textarea>
   </div>
+    <div class="col-12">
+      <label class="form-check-label" for="featuredChecked">
+        Featured &nbsp;
+      </label>
+      <input name="featured" id="featuredChecked" class="form-check-input" type="checkbox" value="<?= $row['featured'] ?>" <?= $row['featured'] == '1' ? 'checked':'' ?>>
+    </div>
   <div class="col-12">
     <input type="hidden" name="action" value="submit">
+    <hr />
     <button type="submit" class="btn btn-success">Simpan</button>
     <button type="button" onclick="batal()" class="btn btn-danger">Batal</button>
   </div>
@@ -149,6 +157,28 @@ if($row == null) {
     $("input[type=file]").change(function() {
         $("img").attr('src','');
         $("img").css('display','none');
+    });
+
+    $("input[name=featured]").click(function() {
+        let featured = $(this);
+        let val = featured.val();
+        if (featured.is(':checked')) {
+
+            if (val == '1') {
+                featured.val('0');
+            } else {
+                featured.val('1');
+            }
+        } else {
+
+            if (val == '1') {
+                featured.val('0');
+            } else {
+                featured.val('1');
+            }
+        }
+
+        console.log(featured.val());
     });
 
     function batal() {
