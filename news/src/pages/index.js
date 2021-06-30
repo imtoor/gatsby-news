@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'gatsby';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import groupBy from 'lodash/groupBy';
 import Layout from '../components/Layout';
-
-import imgNews1 from '../assets/images/news-450x350-1.jpg';
-import imgNews2 from '../assets/images/news-450x350-2.jpg';
-import imgNews3 from '../assets/images/news-350x223-1.jpg';
-import imgNews4 from '../assets/images/news-350x223-2.jpg';
-import imgNews5 from '../assets/images/news-350x223-3.jpg';
 
 const loadImage = function (variable) {
   const image = new Image();
@@ -88,15 +83,60 @@ const Featured = (item) => (
   </div>
 );
 
-const PopularNews = (item) => <></>;
+const PopularNews = (item) => (
+  <div className="tn-news">
+    <div className="tn-img">
+      <img src={loadImage(item.item.image)} alt={item.item.image} />
+    </div>
+    <div className="tn-title">
+      <Link to={`/news/${item.item.slug}`}>{item.item.title}</Link>
+    </div>
+  </div>
+);
 
-const LatestNews = (item) => <></>;
+const LatestNews = (item) => (
+  <div className="tn-news">
+    <div className="tn-img">
+      <img src={loadImage(item.item.image)} alt={item.item.image} />
+    </div>
+    <div className="tn-title">
+      <Link to={`/news/${item.item.slug}`}>{item.item.title}</Link>
+    </div>
+  </div>
+);
 
-const MostViewed = (item) => <></>;
+const MostViewed = (item) => (
+  <div className="tn-news">
+    <div className="tn-img">
+      <img src={loadImage(item.item.image)} alt={item.item.image} />
+    </div>
+    <div className="tn-title">
+      <Link to={`/news/${item.item.slug}`}>{item.item.title}</Link>
+    </div>
+  </div>
+);
 
-const MostRead = (item) => <></>;
+const MostRead = (item) => (
+  <div className="tn-news">
+    <div className="tn-img">
+      <img src={loadImage(item.item.image)} alt={item.item.image} />
+    </div>
+    <div className="tn-title">
+      <Link to={`/news/${item.item.slug}`}>{item.item.title}</Link>
+    </div>
+  </div>
+);
 
-const MostRecent = (item) => <></>;
+const MostRecent = (item) => (
+  <div className="tn-news">
+    <div className="tn-img">
+      <img src={loadImage(item.item.image)} alt={item.item.image} />
+    </div>
+    <div className="tn-title">
+      <Link to={`/news/${item.item.slug}`}>{item.item.title}</Link>
+    </div>
+  </div>
+);
 
 export default function HomePage() {
   const [listOfKategori, setListOfKategori] = useState([]);
@@ -104,6 +144,11 @@ export default function HomePage() {
   const [topNewsRight, setTopNewsRight] = useState([]);
   const [mainNews, setMainNews] = useState([]);
   const [featuredItem, setFeaturedItem] = useState([]);
+  const [popularNewsItem, setPopularNewsItem] = useState([]);
+  const [latestNewsItem, setLatestNewsItem] = useState([]);
+  const [mostViewed, setMostViewed] = useState([]);
+  const [mostRecent, setMostRecent] = useState([]);
+  const [mostRead, setMostRead] = useState([]);
 
   useEffect(() => {
     document.getElementById('linkAbout').classList.remove('active');
@@ -171,6 +216,66 @@ export default function HomePage() {
           if (item.featured == 1) {
             setFeaturedItem((prevState) => [...prevState, item]);
           }
+        });
+      }
+    );
+  }, []);
+
+  useEffect(() => {
+    fetch(`http://localhost/gatsby-news/admin/api/popular_news.php`).then(
+      async (res) => {
+        const response = await res.json();
+        // eslint-disable-next-line array-callback-return
+        response.data.map((item) => {
+          setPopularNewsItem((prevState) => [...prevState, item]);
+        });
+      }
+    );
+  }, []);
+
+  useEffect(() => {
+    fetch(`http://localhost/gatsby-news/admin/api/latest_news.php`).then(
+      async (res) => {
+        const response = await res.json();
+        // eslint-disable-next-line array-callback-return
+        response.data.map((item) => {
+          setLatestNewsItem((prevState) => [...prevState, item]);
+        });
+      }
+    );
+  }, []);
+
+  useEffect(() => {
+    fetch(`http://localhost/gatsby-news/admin/api/popular_news.php`).then(
+      async (res) => {
+        const response = await res.json();
+        // eslint-disable-next-line array-callback-return
+        response.data.map((item) => {
+          setMostViewed((prevState) => [...prevState, item]);
+        });
+      }
+    );
+  }, []);
+
+  useEffect(() => {
+    fetch(`http://localhost/gatsby-news/admin/api/popular_news.php`).then(
+      async (res) => {
+        const response = await res.json();
+        // eslint-disable-next-line array-callback-return
+        response.data.map((item) => {
+          setMostRead((prevState) => [...prevState, item]);
+        });
+      }
+    );
+  }, []);
+
+  useEffect(() => {
+    fetch(`http://localhost/gatsby-news/admin/api/latest_news.php`).then(
+      async (res) => {
+        const response = await res.json();
+        // eslint-disable-next-line array-callback-return
+        response.data.map((item) => {
+          setMostRecent((prevState) => [...prevState, item]);
         });
       }
     );
@@ -255,56 +360,14 @@ export default function HomePage() {
                   ))}
                 </div>
                 <div id="popular" className="container tab-pane fade">
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews4} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews5} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews1} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
+                  {popularNewsItem.map((item) => (
+                    <PopularNews item={item} />
+                  ))}
                 </div>
                 <div id="latest" className="container tab-pane fade">
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews2} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews3} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews4} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
+                  {latestNewsItem.map((item) => (
+                    <LatestNews item={item} />
+                  ))}
                 </div>
               </div>
             </div>
@@ -334,82 +397,19 @@ export default function HomePage() {
 
               <div className="tab-content">
                 <div id="m-viewed" className="container tab-pane active">
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews5} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews4} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews3} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
+                  {mostViewed.map((item) => (
+                    <MostViewed item={item} />
+                  ))}
                 </div>
                 <div id="m-read" className="container tab-pane fade">
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews2} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews1} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews3} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
+                  {mostRead.map((item) => (
+                    <MostRead item={item} />
+                  ))}
                 </div>
                 <div id="m-recent" className="container tab-pane fade">
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews4} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews5} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
-                  <div className="tn-news">
-                    <div className="tn-img">
-                      <img src={imgNews1} />
-                    </div>
-                    <div className="tn-title">
-                      <a href="">Lorem ipsum dolor sit amet</a>
-                    </div>
-                  </div>
+                  {mostRecent.map((item) => (
+                    <MostRecent item={item} />
+                  ))}
                 </div>
               </div>
             </div>

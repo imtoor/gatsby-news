@@ -9,7 +9,7 @@
     }
 
     function getFeaturedNews() {
-        $sql = "SELECT * FROM news ";
+        $sql = "SELECT * FROM news WHERE featured = 1";
         return $result;
     }
 
