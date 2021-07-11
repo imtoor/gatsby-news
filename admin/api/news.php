@@ -37,7 +37,7 @@
         }
 
     } else {
-        $sql = "SELECT kategori_id, title, image, title, content, slug, created_at FROM news WHERE slug = '".$slug."'";
+        $sql = "SELECT kategori_id, title, image, title, content, slug, created_at FROM news WHERE slug = '".$slug."' LIMIT 1";
     }
 
     if (!$mysqli->query($sql)) {

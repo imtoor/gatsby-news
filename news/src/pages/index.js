@@ -169,7 +169,7 @@ export default function HomePage() {
   useEffect(() => {
     // TopNewsRight
     fetch(
-      `http://localhost/gatsby-news/admin/api/news.php?slug=all&limit=4`
+      `http://localhost/gatsby-news/admin/api/news.php?slug=all&limit=4&offset=4`
     ).then(async (res) => {
       const json = await res.json();
       const { data } = json;
