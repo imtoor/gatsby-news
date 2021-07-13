@@ -98,7 +98,7 @@ export default function NewsPage() {
                   )}
                 </div>
                 <div className="sn-content">
-                  <h1 className="sn-title">{news.title}</h1>
+                  <h1 className="sn-title">{news.length > 0 && news[0].title}</h1>
                   <div style={{ display: 'flex', justifyContent: 'center' }}>
                     <p>{news.length > 0 && news[0].content}</p>
                   </div>

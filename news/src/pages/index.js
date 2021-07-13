@@ -17,7 +17,7 @@ const loadImage = function (variable) {
 const TopNewsTnLeft = ({ img, slug, linkText }) => (
   <div className="col-md-6">
     <div className="tn-img">
-      <img src={img} alt={img} />
+      <img src={img} alt={img} height={240} />
       <div className="tn-title">
         <Link to={`news/${slug}`}>{linkText}</Link>
       </div>
@@ -29,7 +29,7 @@ const TopNewsTnRight = ({ img, slug, linkText }) => (
   <div className="col-md-6">
     <div className="tn-img">
       {/* eslint-disable-next-line jsx-a11y/alt-text */}
-      <img src={img} alt={img} />
+      <img src={img} alt={img} height={240} />
       <div className="tn-title">
         <Link to={`news/${slug}`}>{linkText}</Link>
       </div>
