@@ -7,6 +7,9 @@ import logo from '../assets/images/logo.png';
 import adsLogo from '../assets/images/ads-1.jpg';
 
 export default function Layout({ children }) {
+  const searchNews = (searchText) => {
+    window.location.href = `/search_result?search=${searchText}`;
+  };
   return (
     <>
       <head>
@@ -80,10 +83,8 @@ export default function Layout({ children }) {
               </div>
               <div className="col-lg-3 col-md-4">
                 <div className="b-search">
-                  <input type="text" placeholder="Search" />
-                  <button>
-                    <i className="fa fa-search" />
-                  </button>
+                  <input type="text" id="search" name="search" placeholder="cari berita" onKeyUp={(e) => e.key === 'Enter' || e.keyCode === 13 ? searchNews(e.target.value):''}  />
+                  <button onClick={e => searchNews(document.querySelector('#search').value)}><i className="fa fa-search"></i></button>
                 </div>
               </div>
             </div>

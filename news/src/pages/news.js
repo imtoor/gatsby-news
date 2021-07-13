@@ -24,9 +24,27 @@ const RelatedNewsItem = (news) => (
   </div>
 );
 
+const getRelatedNews = (kategori, setRelatedNews) => {
+  fetch(
+    `http://localhost/gatsby-news/admin/api/related_news.php?kategori=${kategori}&limit=6`
+  ).then(async (res) => {
+    const response = await res.json();
+    if (response !== undefined) {
+      if (response.status && response.data.length > 0) {
+        // eslint-disable-next-line array-callback-return
+        response.data.map((item) => {
+          setRelatedNews((prevState) => [...prevState, item]);
+        });
+      }
+    } else {
+      setRelatedNews((prevState) => [...prevState, []]);
+    }
+  });
+};
+
 // eslint-disable-next-line no-empty-pattern
 export default function NewsPage() {
-  const [news, setNews] = useState({});
+  const [news, setNews] = useState([]);
   const [relatedNews, setRelatedNews] = useState([]);
 
   useEffect(() => {
@@ -38,40 +56,21 @@ export default function NewsPage() {
         const response = await res.json();
         if (response !== undefined) {
           if (response.status && response.data.length > 0) {
-            setNews({
-              title: response.data[0].title,
-              content: response.data[0].content,
-              image: loadImage(response.data[0].image),
+            // eslint-disable-next-line array-callback-return
+            response.data.map((item) => {
+              getRelatedNews(item.kategori_id, setRelatedNews);
+              setNews((prevState) => [...prevState, item]);
             });
-            console.log(news);
           } else {
+            console.log('Data not found!');
             navigate('/', { replace: true });
           }
         } else {
+          console.log('Data undefined!');
           navigate('/', { replace: true });
         }
       });
-    } else {
-      navigate('/', { replace: true });
     }
-  }, '');
-
-  useEffect(() => {
-    fetch(
-      `http://localhost/gatsby-news/admin/api/news.php?slug=all&limit=6`
-    ).then(async (res) => {
-      const response = await res.json();
-      if (response !== undefined) {
-        if (response.status && response.data.length > 0) {
-          // eslint-disable-next-line array-callback-return
-          response.data.map((item) => {
-            setRelatedNews((prevState) => [...prevState, item]);
-          });
-        }
-      } else {
-        setRelatedNews((prevState) => [...prevState, []]);
-      }
-    });
   }, []);
 
   return (
@@ -94,11 +93,15 @@ export default function NewsPage() {
               <div className="sn-container">
                 <div className="sn-img">
                   {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                  <img src={news.image} alt={news.image} />
+                  {news.length > 0 && (
+                    <img src={loadImage(news[0].image)} alt={news.image} />
+                  )}
                 </div>
                 <div className="sn-content">
                   <h1 className="sn-title">{news.title}</h1>
-                  <p>{news.content}</p>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <p>{news.length > 0 && news[0].content}</p>
+                  </div>
                 </div>
               </div>
               <div className="sn-related">
